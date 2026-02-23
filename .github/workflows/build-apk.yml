@@ -14,18 +14,18 @@ jobs:
         with:
           node-version: '18'
       
-      - name: Install Bubblewrap
-        run: npm install -g @bubblewrap/cli
-      
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
       
-      - name: Initialize Bubblewrap
-        run: |
-          echo -e "N\n$JAVA_HOME" | npx bubblewrap init --manifest ./manifest.json
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+      
+      - name: Initialize Bubblewrap (Non-interactive)
+        run: npx bubblewrap init --manifest ./manifest.json --skip-update <<< "N"
+        continue-on-error: true
       
       - name: Build APK
         run: npx bubblewrap build
@@ -35,4 +35,3 @@ jobs:
         with:
           name: gto-poker-apk
           path: ./app/build/outputs/apk/release/*.apk
-
