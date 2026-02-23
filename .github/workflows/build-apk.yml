@@ -25,7 +25,7 @@ jobs:
       
       - name: Initialize Bubblewrap
         run: |
-          printf "N\n$JAVA_HOME\n" | npx bubblewrap init --manifest ./manifest.json
+          echo -e "N\n$JAVA_HOME" | npx bubblewrap init --manifest ./manifest.json
       
       - name: Build APK
         run: npx bubblewrap build
@@ -35,3 +35,4 @@ jobs:
         with:
           name: gto-poker-apk
           path: ./app/build/outputs/apk/release/*.apk
+
