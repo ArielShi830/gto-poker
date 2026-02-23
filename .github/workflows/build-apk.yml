@@ -17,15 +17,22 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
       
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
       - name: Initialize Bubblewrap
         run: |
-          npx bubblewrap init --manifest https://your-site.com/manifest.json --skip-prompts || true
+          echo "N" | npx bubblewrap init --manifest ./manifest.json
       
       - name: Build APK
-        run: npx bubblewrap build
+        run: |
+          echo "N" | npx bubblewrap build
       
-      - name: Upload APK
+      - name: Find and Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: gto-poker-apk
-          path: ./*.apk
+          path: ./app/build/outputs/apk/release/*.apk
