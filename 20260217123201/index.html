@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- PWA 基础配置 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GTO助手">
+    <meta name="theme-color" content="#16213e">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-TileColor" content="#16213e">
+    <meta name="msapplication-tap-highlight" content="no">
+    <!-- iOS 启动画面 -->
+    <meta name="apple-touch-fullscreen" content="yes">
+    <!-- 应用描述 -->
+    <meta name="description" content="基于博弈论最优策略的德扑决策建议工具，支持皇上、世伟、龙儿、嘉蔓、仕丞、李老师儿六种风格">
+    <meta name="keywords" content="德州扑克,GTO,决策助手,扑克策略,博弈论">
+    <title>德州扑克GTO决策助手</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <!-- iOS 图标 -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+    <!-- 预连接优化 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+</head>
+<body>
+    <!-- PWA 安装提示 -->
+    <div class="install-prompt" id="installPrompt" style="display: none;">
+        <div class="install-prompt-content">
+            <span class="install-icon">📱</span>
+            <div class="install-text">
+                <strong>安装GTO助手</strong>
+                <p>添加到主屏幕，离线也能用</p>
+            </div>
+            <div class="install-buttons">
+                <button class="install-btn" id="installBtn">安装</button>
+                <button class="install-dismiss" id="installDismiss">稍后</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>🃏 德州扑克GTO决策助手</h1>
+            <p class="subtitle">基于博弈论最优策略的决策建议</p>
+        </header>
+
+        <main>
+            <!-- 基础信息输入 -->
+            <section class="input-section">
+                <h2>游戏设置</h2>
+                <div class="input-group">
+                    <label for="players">玩家人数</label>
+                    <input type="number" id="players" min="2" max="10" value="6">
+                </div>
+                <div class="input-group">
+                    <label for="pot">底池筹码</label>
+                    <input type="number" id="pot" min="1" value="100">
+                </div>
+                <div class="input-group">
+                    <label for="betToCall">需要跟注的筹码</label>
+                    <input type="number" id="betToCall" min="0" value="0">
+                </div>
+                <div class="input-group">
+                    <label for="stack">你的筹码量</label>
+                    <input type="number" id="stack" min="1" value="500">
+                </div>
+                <div class="input-group">
+                    <label for="position">你的位置</label>
+                    <select id="position">
+                        <option value="utg">UTG (枪口位)</option>
+                        <option value="utg1">UTG+1</option>
+                        <option value="mp">MP (中间位)</option>
+                        <option value="hj">HJ (劫持位)</option>
+                        <option value="co">CO (关煞位)</option>
+                        <option value="btn" selected>BTN (庄家位)</option>
+                        <option value="sb">SB (小盲位)</option>
+                        <option value="bb">BB (大盲位)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="tightness">松紧度 (风格)</label>
+                    <select id="tightness">
+                        <option value="huangshang">皇上 (很松 - 最激进)</option>
+                        <option value="shiwei">世伟 (松 - 激进)</option>
+                        <option value="longer" selected>龙儿 (一般 - 平衡)</option>
+                        <option value="jiaman">嘉蔓 (紧 - 谨慎)</option>
+                        <option value="shicheng">仕丞 (很紧 - 极谨慎)</option>
+                        <option value="lilaoshi">李老师儿 (随机模式)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- 游戏阶段选择 -->
+            <section class="stage-section">
+                <h2>游戏阶段</h2>
+                <div class="stage-buttons">
+                    <button class="stage-btn active" data-stage="preflop">翻前</button>
+                    <button class="stage-btn" data-stage="flop">翻牌 (3张)</button>
+                    <button class="stage-btn" data-stage="turn">转牌 (4张)</button>
+                    <button class="stage-btn" data-stage="river">河牌 (5张)</button>
+                </div>
+            </section>
+
+            <!-- 手牌选择 -->
+            <section class="cards-section">
+                <h2>你的手牌</h2>
+                <div class="hand-cards" id="handCards">
+                    <div class="card-slot" id="card1">
+                        <div class="card-placeholder">选择第一张牌</div>
+                    </div>
+                    <div class="card-slot" id="card2">
+                        <div class="card-placeholder">选择第二张牌</div>
+                    </div>
+                </div>
+                <div class="quick-select" id="handTypeSelect">
+                    <p>快速选择起手牌类型：</p>
+                    <div class="hand-type-buttons">
+                        <button class="hand-type-btn" data-type="AA">AA</button>
+                        <button class="hand-type-btn" data-type="KK">KK</button>
+                        <button class="hand-type-btn" data-type="QQ">QQ</button>
+                        <button class="hand-type-btn" data-type="AKs">AKs</button>
+                        <button class="hand-type-btn" data-type="AKo">AKo</button>
+                        <button class="hand-type-btn" data-type="JJ">JJ</button>
+                        <button class="hand-type-btn" data-type="TT">TT</button>
+                        <button class="hand-type-btn" data-type="AQs">AQs</button>
+                        <button class="hand-type-btn" data-type="99">99</button>
+                        <button class="hand-type-btn" data-type="88">88</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 公共牌选择 -->
+            <section class="community-section" id="communitySection" style="display: none;">
+                <h2>公共牌</h2>
+                <div class="community-cards" id="communityCards">
+                    <div class="card-slot community" id="comm1">
+                        <div class="card-placeholder">公共牌1</div>
+                    </div>
+                    <div class="card-slot community" id="comm2">
+                        <div class="card-placeholder">公共牌2</div>
+                    </div>
+                    <div class="card-slot community" id="comm3">
+                        <div class="card-placeholder">公共牌3</div>
+                    </div>
+                    <div class="card-slot community" id="comm4" style="display: none;">
+                        <div class="card-placeholder">公共牌4</div>
+                    </div>
+                    <div class="card-slot community" id="comm5" style="display: none;">
+                        <div class="card-placeholder">公共牌5</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 牌选择弹窗 -->
+            <div class="card-picker-modal" id="cardPickerModal">
+                <div class="card-picker-content">
+                    <h3>选择一张牌</h3>
+                    <div class="suit-tabs">
+                        <button class="suit-tab active" data-suit="spade">♠ 黑桃</button>
+                        <button class="suit-tab" data-suit="heart">♥ 红心</button>
+                        <button class="suit-tab" data-suit="diamond">♦ 方块</button>
+                        <button class="suit-tab" data-suit="club">♣ 梅花</button>
+                    </div>
+                    <div class="rank-grid" id="rankGrid">
+                        <!-- 动态生成 -->
+                    </div>
+                    <button class="close-picker" id="closePicker">取消</button>
+                </div>
+            </div>
+
+            <!-- 决策按钮 -->
+            <section class="action-section">
+                <button class="analyze-btn" id="analyzeBtn">分析决策</button>
+            </section>
+
+            <!-- 决策结果 -->
+            <section class="result-section" id="resultSection" style="display: none;">
+                <h2>决策建议</h2>
+                <div class="result-content" id="resultContent">
+                    <!-- 动态生成 -->
+                </div>
+            </section>
+
+            <!-- 胜负结果记录 -->
+            <section class="result-input-section" id="resultInputSection" style="display: none;">
+                <h2>记录本局结果</h2>
+                <div class="result-input-content">
+                    <div class="input-group">
+                        <label for="finalResult">本局最终结果</label>
+                        <select id="finalResult">
+                            <option value="win">✅ 胜利（赢取筹码）</option>
+                            <option value="loss">❌ 失败（失去筹码）</option>
+                            <option value="tie">⚖️ 平局（无变化）</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="resultNote">备注（可选）</label>
+                        <input type="text" id="resultNote" placeholder="记录牌局细节或心得">
+                    </div>
+                    <div class="button-group">
+                        <button class="save-result-btn" id="saveResultBtn">保存记录</button>
+                        <button class="cancel-result-btn" id="cancelResultBtn">跳过</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 历史记录 -->
+            <section class="history-section" id="historySection">
+                <div class="history-header">
+                    <h2>📊 历史记录</h2>
+                    <div class="history-controls">
+                        <button class="history-tab active" data-filter="all">全部</button>
+                        <button class="history-tab" data-filter="win">胜利</button>
+                        <button class="history-tab" data-filter="loss">失败</button>
+                        <button class="history-tab" data-filter="tie">平局</button>
+                        <button class="export-btn" id="exportBtn">导出</button>
+                        <button class="clear-btn" id="clearHistoryBtn">清空</button>
+                    </div>
+                </div>
+                <div class="history-stats" id="historyStats">
+                    <!-- 统计信息 -->
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- 历史记录列表 -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>⚠️ 本工具仅供参考，实际决策应考虑更多因素如对手风格、牌桌动态等</p>
+        </footer>
+    </div>
+
+    <script src="poker.js"></script>
+    <script src="gto.js"></script>
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => {
+                console.log('Service Worker registered');
+            }).catch((err) => {
+                console.log('Service Worker registration failed:', err);
+            });
+        }
+    </script>
+</body>
+</html>

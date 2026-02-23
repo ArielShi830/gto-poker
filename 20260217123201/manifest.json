@@ -1,0 +1,78 @@
+{
+    "@platforms" : [ "android", "iPhone", "iPad" ],
+    "id" : "H5123456",
+    "name" : "德州扑克GTO决策助手",
+    "description" : "基于博弈论最优策略的德扑决策建议工具",
+    "version" : {
+        "name" : "1.0.0",
+        "code" : 100
+    },
+    "launch_path" : "index.html",
+    "developer" : {
+        "name" : "GTO助手",
+        "email" : "",
+        "url" : ""
+    },
+    "icons" : {
+        "72" : "icon-192.png",
+        "96" : "icon-192.png",
+        "128" : "icon-512.png",
+        "192" : "icon-512.png"
+    },
+    "screenOrientation" : [ "portrait-primary" ],
+    "splashscreen" : {
+        "autoclose" : true,
+        "waiting" : true,
+        "delay" : 0
+    },
+    "permissions" : {
+        "Network" : {
+            "description" : "访问网络"
+        }
+    },
+    "plus" : {
+        "statusbar" : {
+            "immersed" : true,
+            "style" : "dark",
+            "background" : "#16213e"
+        },
+        "splashscreen" : {
+            "autoclose" : true,
+            "waiting" : true,
+            "delay" : 0
+        },
+        "runtime" : {
+            "arguments" : "",
+            "version" : ""
+        },
+        "distribute" : {
+            "android" : {
+                "packagename" : "com.gto.poker.assistant",
+                "keystore" : "",
+                "password" : "",
+                "aliasname" : "",
+                "schemes" : "",
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a" ],
+                "targetSdkVersion" : 30,
+                "minSdkVersion" : 21,
+                "permissions" : [
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>"
+                ]
+            },
+            "ios" : {
+                "appid" : "",
+                "mobileprovision" : "",
+                "password" : "",
+                "p12" : "",
+                "devices" : "universal",
+                "urltypes" : "",
+                "frameworks" : [],
+                "dSYMs" : false
+            },
+            "orientation" : [ "portrait-primary" ],
+            "background" : "#16213e"
+        }
+    }
+}

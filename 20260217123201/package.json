@@ -1,0 +1,8 @@
+{
+  "name": "gto-poker-assistant",
+  "version": "1.0.0",
+  "description": "德州扑克GTO决策助手",
+  "scripts": {
+    "build": "echo 'Build complete'"
+  }
+}
