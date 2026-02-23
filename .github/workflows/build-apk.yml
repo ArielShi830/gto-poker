@@ -7,23 +7,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
       
-      - name: Install dependencies
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+      
+      - name: Initialize Bubblewrap
         run: |
-          npm install -g @bubblewrap/cli
+          npx bubblewrap init --manifest https://your-site.com/manifest.json --skip-prompts || true
       
       - name: Build APK
-        run: |
-          npx bubblewrap build --skip-prompts
+        run: npx bubblewrap build
       
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gto-poker-apk
           path: ./*.apk
